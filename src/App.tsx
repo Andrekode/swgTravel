@@ -1,34 +1,42 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import React, { useState, useEffect } from 'react';
+import travelStore from './stores/travelStore';
+import { observer } from 'mobx-react';
+import { TextField, Typography } from '@mui/material';
+import TravelsAvailable from './components/TravelAvailable';
 
 function App() {
-  const [count, setCount] = useState(0)
+    useEffect(() => {
+        travelStore.getTravels();
+    }, []);
 
-  return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
+    const test = travelStore.travelsAvailable.map((travels, i) => {
+        return (
+            <TravelsAvailable
+                key={i}
+                alias={travels.alias}
+                command={travels.command}
+                currentPlanet={travels.currentPlanet}
+                nextPlanet={travels.nextPlanet}
+                starport={travels.starport}
+                starport2={travels.starport2}
+            />
+        );
+    });
+
+    return (
+        <div className='App'>
+            <TextField
+                id='outlined-basic'
+                label='Current Planet'
+                variant='outlined'
+                onChange={(e) => travelStore.handleSearch(e)}
+                value={travelStore.searchString}
+                name='searchString'
+            />
+            <Typography component='p'>{travelStore.travelsAvailable.length}</Typography>
+            {test}
+        </div>
+    );
 }
 
-export default App
+export default observer(App);
