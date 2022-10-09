@@ -14,6 +14,7 @@ class TravelStore {
     @observable travels: Travel[] = [INIT_TRAVEL];
     @observable travelsAvailable: Travel[] = [INIT_TRAVEL];
     @observable searchString = '';
+    @observable isTravelsLocal = false;
 
     constructor() {
         makeAutoObservable(this);
@@ -25,15 +26,31 @@ class TravelStore {
     }
     @action
     getAvailableDestinations(currentPlanet: string) {
-        this.travelsAvailable = this.travels.filter((planet) =>
-            planet.currentPlanet.includes(currentPlanet),
-        );
+        if (this.isTravelsLocal) {
+            this.travelsAvailable = this.travels.filter(
+                (planet) =>
+                    planet.currentPlanet.includes(currentPlanet) &&
+                    planet.nextPlanet.includes(currentPlanet),
+            );
+        } else {
+            this.travelsAvailable = this.travels.filter(
+                (planet) =>
+                    planet.currentPlanet.includes(currentPlanet) &&
+                    !planet.nextPlanet.includes(currentPlanet),
+            );
+        }
     }
     @action
     handleSearch(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
         const { value } = e.target;
         this.searchString = value;
-        this.getAvailableDestinations(this.searchString);
+        this.getAvailableDestinations(this.searchString.toLowerCase());
+    }
+
+    @action
+    setIsTravelLocal() {
+        this.isTravelsLocal = !this.isTravelsLocal;
+        this.getAvailableDestinations(this.searchString.toLowerCase());
     }
 }
 
