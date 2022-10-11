@@ -1,4 +1,5 @@
 interface Travel {
+    id: string;
     currentPlanet: string;
     starport: string;
     nextPlanet: string;

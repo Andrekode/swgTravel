@@ -28,10 +28,11 @@ interface TravelAvailableProps {
     nextPlanet: string;
     starport: string;
     starport2: string;
+    handleClick: (e) => void;
 }
 
 export default function TravelAvailable(props: TravelAvailableProps) {
-    const { alias, command, currentPlanet, nextPlanet, starport, starport2 } = props;
+    const { alias, command, currentPlanet, nextPlanet, starport, starport2, handleClick } = props;
 
     const card = (
         <React.Fragment>
@@ -59,7 +60,7 @@ export default function TravelAvailable(props: TravelAvailableProps) {
                             </Stack>
                         </Item>
                     </Stack>
-                    <Item sx={{ backgroundColor: '#2e557c' }}>
+                    <Item onClick={handleClick} sx={{ backgroundColor: '#2e557c' }}>
                         <Typography sx={{ fontSize: 14 }} color='common.white' gutterBottom>
                             Next Available Planet:
                         </Typography>

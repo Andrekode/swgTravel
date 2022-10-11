@@ -1,8 +1,9 @@
 import { action, makeAutoObservable, observable } from 'mobx';
-import travelObject from '../utils/transformObject';
 import type Travel from '../type/travel.type';
-
+import travelService from '../services/travelService';
+import { debounce } from 'lodash';
 const INIT_TRAVEL: Travel = {
+    id: '',
     currentPlanet: '',
     starport: '',
     nextPlanet: '',
@@ -13,7 +14,10 @@ const INIT_TRAVEL: Travel = {
 class TravelStore {
     @observable travels: Travel[] = [INIT_TRAVEL];
     @observable travelsAvailable: Travel[] = [INIT_TRAVEL];
-    @observable searchString = '';
+    @observable travelsAvailableCurrentPlanet: Travel[] = [INIT_TRAVEL];
+    @observable currentPlanet = '';
+    @observable nextPlanet = '';
+    @observable travelRoute: Travel[] = [];
     @observable isTravelsLocal = false;
 
     constructor() {
@@ -21,37 +25,44 @@ class TravelStore {
     }
 
     @action
-    getTravels() {
-        this.travels = travelObject;
-    }
-    @action
-    getAvailableDestinations(currentPlanet: string) {
-        if (this.isTravelsLocal) {
-            this.travelsAvailable = this.travels.filter(
-                (planet) =>
-                    planet.currentPlanet.includes(currentPlanet) &&
-                    planet.nextPlanet.includes(currentPlanet),
-            );
-        } else {
-            this.travelsAvailable = this.travels.filter(
-                (planet) =>
-                    planet.currentPlanet.includes(currentPlanet) &&
-                    !planet.nextPlanet.includes(currentPlanet),
-            );
-        }
-    }
-    @action
-    handleSearch(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-        const { value } = e.target;
-        this.searchString = value;
-        this.getAvailableDestinations(this.searchString.toLowerCase());
+    getAvailableDestinationsCurrentPlanet() {
+        this.travelsAvailableCurrentPlanet = travelService.getAvailableDestinationsByCurrentPlanet(
+            this.currentPlanet,
+            this.isTravelsLocal,
+        );
     }
 
     @action
     setIsTravelLocal() {
         this.isTravelsLocal = !this.isTravelsLocal;
-        this.getAvailableDestinations(this.searchString.toLowerCase());
     }
+
+    @action
+    setCurrentPlanet(currentPlanet: string) {
+        this.currentPlanet = currentPlanet;
+    }
+
+    @action
+    setNextPlanet(nextPlanet: string) {
+        this.nextPlanet = nextPlanet;
+    }
+
+    @action
+    setCurrentPlanetToNextPlanet() {
+        this.currentPlanet = this.nextPlanet;
+    }
+
+    @action
+    setTravelRoute(nextPlanet: Travel): void {
+        this.travelRoute.push(nextPlanet);
+    }
+
+    search = debounce(
+        action((query) => {
+            this.currentPlanet = query;
+        }),
+        500,
+    );
 }
 
 const travelStore = new TravelStore();
