@@ -1,68 +1,56 @@
 import { action, makeAutoObservable, observable } from 'mobx';
-import type Travel from '../type/travel.type';
+import { Planets, TravelPoints } from '../type/travel.type';
 import travelService from '../services/travelService';
-import { debounce } from 'lodash';
-const INIT_TRAVEL: Travel = {
-    id: '',
-    currentPlanet: '',
-    starport: '',
-    nextPlanet: '',
-    starport2: '',
-    alias: '',
-    command: '',
+const INIT_TRAVELPOINTS: TravelPoints = {
+    name: '',
+    coords: {
+        x: 0,
+        y: 0,
+        z: 0,
+    },
+    interplanetaryTravelAllowed: false,
+    incomingTravelAllowed: false,
 };
+
 class TravelStore {
-    @observable travels: Travel[] = [INIT_TRAVEL];
-    @observable travelsAvailable: Travel[] = [INIT_TRAVEL];
-    @observable travelsAvailableCurrentPlanet: Travel[] = [INIT_TRAVEL];
-    @observable currentPlanet = '';
-    @observable nextPlanet = '';
-    @observable travelRoute: Travel[] = [];
-    @observable isTravelsLocal = false;
+    @observable planetNames: string[] = [''];
+    @observable destinationTravelPoints: TravelPoints[] = [INIT_TRAVELPOINTS];
+    @observable currentLocationTravelPoints: TravelPoints[] = [INIT_TRAVELPOINTS];
 
     constructor() {
         makeAutoObservable(this);
     }
+    @action
+    getPlanets() {
+        this.planetNames = travelService.getAllPlanets();
+    }
 
     @action
-    getAvailableDestinationsCurrentPlanet() {
-        this.travelsAvailableCurrentPlanet = travelService.getAvailableDestinationsByCurrentPlanet(
-            this.currentPlanet,
-            this.isTravelsLocal,
+    getDestinationTravelPoints(destination: string) {
+        const result = travelService.getDestinationTravelPoints(destination);
+        this.destinationTravelPoints = result;
+    }
+
+    @action
+    getCurrentLocationTravelPoints(currentLocation: string) {
+        const result = travelService.getCurrentLocationTravelPoints(currentLocation);
+        this.currentLocationTravelPoints = result;
+    }
+
+    @action
+    getTravelRoute(
+        currentLocation: string,
+        currentLocationTravelPoint: string,
+        destination: string,
+        destinationTravelPoint: string,
+    ) {
+        const result = travelService.getTravelRoute(
+            currentLocation,
+            currentLocationTravelPoint,
+            destination,
+            destinationTravelPoint,
         );
     }
-
-    @action
-    setIsTravelLocal() {
-        this.isTravelsLocal = !this.isTravelsLocal;
-    }
-
-    @action
-    setCurrentPlanet(currentPlanet: string) {
-        this.currentPlanet = currentPlanet;
-    }
-
-    @action
-    setNextPlanet(nextPlanet: string) {
-        this.nextPlanet = nextPlanet;
-    }
-
-    @action
-    setCurrentPlanetToNextPlanet() {
-        this.currentPlanet = this.nextPlanet;
-    }
-
-    @action
-    setTravelRoute(nextPlanet: Travel): void {
-        this.travelRoute.push(nextPlanet);
-    }
-
-    search = debounce(
-        action((query) => {
-            this.currentPlanet = query;
-        }),
-        500,
-    );
 }
 
 const travelStore = new TravelStore();

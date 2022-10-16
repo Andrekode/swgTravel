@@ -1,11 +1,20 @@
-interface Travel {
-    id: string;
-    currentPlanet: string;
-    starport: string;
-    nextPlanet: string;
-    starport2: string;
-    alias: string;
-    command: string;
+interface Planet {
+    planetName: string;
+    planetTravelPoints: TravelPoints[];
+    connectingPlanets: string[];
 }
 
-export default Travel;
+interface TravelPoints {
+    name: string;
+    coords: Coord;
+    interplanetaryTravelAllowed: boolean;
+    incomingTravelAllowed: boolean;
+}
+
+interface Coord {
+    x: number;
+    z: number;
+    y: number;
+}
+
+export type { Planet, TravelPoints };

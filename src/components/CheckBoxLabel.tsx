@@ -4,15 +4,15 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 
 interface CheckBoxProps {
-    isTravelsLocal: boolean;
-    setIsTravelLocal: () => void;
+    isLocalTravel: boolean;
+    setIsLocalTravel: () => void;
 }
 export default function CheckboxLabels(props: CheckBoxProps) {
-    const { isTravelsLocal, setIsTravelLocal } = props;
+    const { isLocalTravel, setIsLocalTravel } = props;
     return (
         <FormGroup>
             <FormControlLabel
-                control={<Checkbox onChange={setIsTravelLocal} checked={isTravelsLocal} />}
+                control={<Checkbox onChange={setIsLocalTravel} checked={isLocalTravel} />}
                 label='Travel current planet ?'
             />
         </FormGroup>
