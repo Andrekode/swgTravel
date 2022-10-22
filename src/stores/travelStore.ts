@@ -1,5 +1,6 @@
 import { action, makeAutoObservable, observable } from 'mobx';
-import { Planets, TravelPoints } from '../type/travel.type';
+import { Planet, TravelPoints } from '../type/travel.type';
+import { TravelRoute } from '../type/travelRoute.type';
 import travelService from '../services/travelService';
 const INIT_TRAVELPOINTS: TravelPoints = {
     name: '',
@@ -12,10 +13,16 @@ const INIT_TRAVELPOINTS: TravelPoints = {
     incomingTravelAllowed: false,
 };
 
+const INIT_TRAVELROUTE: TravelRoute = {
+    currentPlanet: '',
+    currentPlanetTravelPoint: '',
+};
+
 class TravelStore {
     @observable planetNames: string[] = [''];
     @observable destinationTravelPoints: TravelPoints[] = [INIT_TRAVELPOINTS];
     @observable currentLocationTravelPoints: TravelPoints[] = [INIT_TRAVELPOINTS];
+    @observable travelRoute: TravelRoute[] = [INIT_TRAVELROUTE];
 
     constructor() {
         makeAutoObservable(this);
@@ -50,6 +57,8 @@ class TravelStore {
             destination,
             destinationTravelPoint,
         );
+
+        this.travelRoute = result;
     }
 }
 

@@ -1,6 +1,8 @@
 import { nanoid } from 'nanoid';
 import { Planet, TravelPoints } from '../type/travel.type';
+import { TravelRoute } from '../type/travelRoute.type';
 import planets from '../assets/planets';
+import capitalizeFirstLetter from '../utils/capitalizeFirstLetter';
 
 class TravelService {
     getAllPlanets() {
@@ -26,9 +28,8 @@ class TravelService {
                 },
             ];
         } else {
-            const destinationTravelPoints: TravelPoints[] = result.planetTravelPoints.filter(
-                (point) => point.interplanetaryTravelAllowed,
-            );
+            const destinationTravelPoints: TravelPoints[] = result.planetTravelPoints;
+
             return destinationTravelPoints;
         }
     }
@@ -50,9 +51,7 @@ class TravelService {
                 },
             ];
         } else {
-            const currentLocationTravelPoints: TravelPoints[] = result.planetTravelPoints.filter(
-                (point) => point.interplanetaryTravelAllowed,
-            );
+            const currentLocationTravelPoints: TravelPoints[] = result.planetTravelPoints;
             return currentLocationTravelPoints;
         }
     }
@@ -61,8 +60,7 @@ class TravelService {
         currentLocationTravelPoint: string,
         destination: string,
         destinationTravelPoint: string,
-    ): Planet[] {
-        const result: Planet[] = planets.map((planet) => planet);
+    ): TravelRoute[] {
         if (
             destination &&
             currentLocation &&
@@ -77,42 +75,119 @@ class TravelService {
                 (planet) => planet.planetName === destination,
             )[0];
 
-            //  check if  travel from current to destination is possible
-            const IsCurrentLocationConnectedToDestination: boolean =
+            const travelRoute: TravelRoute[] = [
+                {
+                    currentPlanet: currentLocation,
+                    currentPlanetTravelPoint: currentLocationTravelPoint,
+                },
+            ];
+
+            // check if current travel point allows interplanetaryTravel
+
+            const isCurrentTravelPointInterplanetaryTravelAllowed: boolean =
+                currentLocationObj.planetTravelPoints.filter(
+                    (point) => point.name === currentLocationTravelPoint,
+                )[0]?.interplanetaryTravelAllowed;
+
+            if (!isCurrentTravelPointInterplanetaryTravelAllowed) {
+                const nextAllowed = currentLocationObj.planetTravelPoints.filter(
+                    (point) => point.interplanetaryTravelAllowed,
+                )[0];
+
+                travelRoute.push({
+                    currentPlanet: currentLocation,
+                    currentPlanetTravelPoint: nextAllowed.name,
+                });
+            }
+
+            const isDestinationTravelPointInterplanetaryTravelAllowed: boolean =
+                currentLocationObj.planetTravelPoints.filter(
+                    (point) => point.name === destinationTravelPoint,
+                )[0]?.interplanetaryTravelAllowed;
+
+            // check if current planet is connected to next planet
+            const isCurrentLocationConnectToDestination: boolean =
                 currentLocationObj.connectingPlanets.includes(destination.toLowerCase());
 
-            // check destination connected points with currentLocation points
-            const isDestConnectionInCurrentConnection = destinationObj.connectingPlanets.some(
-                (planet) => currentLocationObj.connectingPlanets.includes(planet.toLowerCase()),
-            );
-
-            if (IsCurrentLocationConnectedToDestination) {
-                const planetsRoute = planets.filter(
-                    (planet) =>
-                        planet.planetName === currentLocation || planet.planetName === destination,
+            if (!isCurrentLocationConnectToDestination) {
+                const isConnections: boolean = destinationObj.connectingPlanets.some((planet) =>
+                    currentLocationObj.connectingPlanets.includes(planet.toLowerCase()),
                 );
+                if (!isConnections) {
+                    console.log('NO CONNECTIONS.. Connecting to Naboo');
+                    const naboo: Planet = planets.filter(
+                        (planet) => planet.planetName === 'Naboo',
+                    )[0];
+                    const nabooTravelPoint = naboo.planetTravelPoints.filter(
+                        (point) => point.interplanetaryTravelAllowed,
+                    )[0];
 
-                console.log('is connected', planetsRoute);
-            }
-            if (isDestConnectionInCurrentConnection) {
-                console.log('connect by other planets');
-            }
+                    travelRoute.push(
+                        {
+                            currentPlanet: naboo.planetName,
+                            currentPlanetTravelPoint: nabooTravelPoint.name,
+                        },
 
-            console.log('currentloc', currentLocation);
-            console.log('current', currentLocationObj);
-            console.log('destination', destination);
-            console.log('destination', destinationObj);
-            console.log(
-                'current has connection to destination',
-                IsCurrentLocationConnectedToDestination,
-            );
-            console.log(
-                'destination in currentlocation conecting planets',
-                isDestConnectionInCurrentConnection,
-            );
+                        {
+                            currentPlanet: destination,
+                            currentPlanetTravelPoint: destinationTravelPoint,
+                        },
+                    );
+                } else {
+                    const connectedPlanets = destinationObj.connectingPlanets.filter((planet) =>
+                        currentLocationObj.connectingPlanets.includes(planet),
+                    );
+
+                    const connectedPlanet: Planet = planets.filter(
+                        (planet) =>
+                            planet.planetName === capitalizeFirstLetter(connectedPlanets[0]),
+                    )[0];
+
+                    const travelPointConnectedPlanet = connectedPlanet.planetTravelPoints.filter(
+                        (point) => point.interplanetaryTravelAllowed,
+                    )[0];
+
+                    travelRoute.push(
+                        {
+                            currentPlanet: capitalizeFirstLetter(connectedPlanets[0]),
+                            currentPlanetTravelPoint: travelPointConnectedPlanet.name,
+                        },
+                        {
+                            currentPlanet: destination,
+                            currentPlanetTravelPoint: destinationTravelPoint,
+                        },
+                    );
+                }
+            } else if (!isDestinationTravelPointInterplanetaryTravelAllowed) {
+                const nextAllowed = destinationObj.planetTravelPoints.filter(
+                    (point) => point.interplanetaryTravelAllowed,
+                )[0];
+
+                travelRoute.push(
+                    {
+                        currentPlanet: destination,
+                        currentPlanetTravelPoint: nextAllowed.name,
+                    },
+                    {
+                        currentPlanet: destination,
+                        currentPlanetTravelPoint: destinationTravelPoint,
+                    },
+                );
+            } else {
+                travelRoute.push({
+                    currentPlanet: destination,
+                    currentPlanetTravelPoint: destinationTravelPoint,
+                });
+            }
+            return travelRoute;
+        } else {
+            return [
+                {
+                    currentPlanet: '',
+                    currentPlanetTravelPoint: '',
+                },
+            ];
         }
-
-        return result;
     }
 }
 

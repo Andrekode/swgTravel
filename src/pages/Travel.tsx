@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import bgtravel from '../assets/bgtravel.jpg';
-import { Grid, Paper, Box, Stack, FormControl, InputLabel, MenuItem } from '@mui/material';
+import {
+    Grid,
+    Paper,
+    Box,
+    Stack,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Typography,
+} from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import travelStore from '../stores/travelStore';
 import { observer } from 'mobx-react';
@@ -33,6 +42,7 @@ const Travel = () => {
             destinationTravelPoint,
         );
     }, [currentLocation, currentLocationTravelPoint, destination, destinationTravelPoint]);
+
     const handleSelectDestination = (event: SelectChangeEvent) => {
         setDestination(event.target.value as string);
     };
@@ -49,6 +59,7 @@ const Travel = () => {
         setCurrentLocationTravelPoint(event.target.value as string);
     };
 
+    console.log('travecomp', travelStore.travelRoute);
     return (
         <Box
             sx={{
@@ -66,7 +77,7 @@ const Travel = () => {
                     p: 2,
                     width: '100%',
                     minHeight: '100vh',
-                    opacity: 0.8,
+                    backgroundColor: 'rgba(0,0,0,0.5)',
                 }}
             >
                 <Box
@@ -151,6 +162,37 @@ const Travel = () => {
                             </Select>
                         </FormControl>
                     </Stack>
+                </Box>
+                <Box
+                    sx={{
+                        position: 'fixed',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        gap: 2,
+                        width: '500px',
+                        height: '500px',
+                    }}
+                >
+                    {travelStore.travelRoute.map((route, i) => (
+                        <Box
+                            key={i}
+                            mb={2}
+                            sx={{
+                                backgroundColor: 'primary.dark',
+                                textAlign: 'center',
+                                p: 2,
+                            }}
+                        >
+                            <Typography variant='body1'>{route.currentPlanet}</Typography>
+                            <Typography variant='body1'>
+                                {route.currentPlanetTravelPoint}
+                            </Typography>
+                        </Box>
+                    ))}
                 </Box>
             </Paper>
         </Box>
