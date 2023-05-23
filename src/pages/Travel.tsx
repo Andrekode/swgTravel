@@ -1,65 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import bgtravel from '../assets/bgtravel.jpg';
-import {
-    Grid,
-    Paper,
-    Box,
-    Stack,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    Typography,
-} from '@mui/material';
+import { Paper, Box, Stack, FormControl, InputLabel, MenuItem, Button } from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import travelStore from '../stores/travelStore';
 import { observer } from 'mobx-react';
+import planets from '../assets/planets2';
+import planetTravelStore from '@/stores/planetTravelStore';
 
 const Travel = () => {
-    const [destination, setDestination] = useState('');
-    const [currentLocation, setCurrentLocation] = useState('');
-    const [destinationTravelPoint, setDestinationTravelPoint] = useState('');
-    const [currentLocationTravelPoint, setCurrentLocationTravelPoint] = useState('');
+    const [startPlanetName, setStartPlanetName] = useState('');
+    const [endPlanetName, setEndStartPlanetName] = useState('');
 
-    useEffect(() => {
-        travelStore.getPlanets();
-    }, []);
-
-    useEffect(() => {
-        travelStore.getCurrentLocationTravelPoints(currentLocation);
-        setCurrentLocationTravelPoint(travelStore.currentLocationTravelPoints[0].name);
-    }, [currentLocation]);
-
-    useEffect(() => {
-        travelStore.getDestinationTravelPoints(destination);
-        setDestinationTravelPoint(travelStore.destinationTravelPoints[0].name);
-    }, [destination]);
-
-    useEffect(() => {
-        travelStore.getTravelRoute(
-            currentLocation,
-            currentLocationTravelPoint,
-            destination,
-            destinationTravelPoint,
-        );
-    }, [currentLocation, currentLocationTravelPoint, destination, destinationTravelPoint]);
-
-    const handleSelectDestination = (event: SelectChangeEvent) => {
-        setDestination(event.target.value as string);
+    const handleStartPlanetChange = (event) => {
+        const startPlanetName = event.target.value;
+        setStartPlanetName(startPlanetName);
+        planetTravelStore.setStartPlanet(startPlanetName);
     };
 
-    const handleSelectCurrentLocation = (event: SelectChangeEvent) => {
-        setCurrentLocation(event.target.value as string);
+    const handleEndPlanetChange = (event) => {
+        const endPlanetName = event.target.value;
+        setEndStartPlanetName(endPlanetName);
+        planetTravelStore.setEndPlanet(endPlanetName);
     };
 
-    const handleSelectDestinationTravelPoint = (event: SelectChangeEvent) => {
-        setDestinationTravelPoint(event.target.value as string);
-    };
-
-    const handleSelectCurrentLocationTravelPoint = (event: SelectChangeEvent) => {
-        setCurrentLocationTravelPoint(event.target.value as string);
-    };
-
-    console.log('travecomp', travelStore.travelRoute);
     return (
         <Box
             sx={{
@@ -95,73 +57,37 @@ const Travel = () => {
                                 labelId='current-location-select-label'
                                 id='current-location-select'
                                 label='Current Location'
-                                value={currentLocation}
-                                onChange={handleSelectCurrentLocation}
+                                value={startPlanetName}
+                                onChange={handleStartPlanetChange}
                             >
-                                {travelStore.planetNames.map((name) => (
-                                    <MenuItem key={name} value={name}>
-                                        {name}
+                                {[...planets.keys()].map((planet) => (
+                                    <MenuItem key={planet} value={planet}>
+                                        {planet}
                                     </MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
                         <FormControl fullWidth>
                             <InputLabel id='current-location-travel-point-select-label'>
-                                Current Travel Point
+                                End Location
                             </InputLabel>
                             <Select
-                                labelId='current-location-travel-point-select-label'
-                                id='current-location-travel-point-select'
-                                label='Current Travel Point'
-                                value={currentLocationTravelPoint}
-                                onChange={handleSelectCurrentLocationTravelPoint}
+                                labelId='end-location-label'
+                                id='end-location-select'
+                                label='End Location'
+                                value={endPlanetName}
+                                onChange={handleEndPlanetChange}
                             >
-                                {travelStore.currentLocationTravelPoints.map((travelPoint) => (
-                                    <MenuItem key={travelPoint.name} value={travelPoint.name}>
-                                        {travelPoint.name}
+                                {[...planets.keys()].map((planet) => (
+                                    <MenuItem key={planet} value={planet}>
+                                        {planet}
                                     </MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
+                        <Button onClick={() => planetTravelStore.findShortesPath()}>Go</Button>
                     </Stack>
-                    <Stack direction='row' spacing={2} sx={{ width: 500 }}>
-                        <FormControl fullWidth>
-                            <InputLabel id='planet-destination-select-label'>
-                                Destination
-                            </InputLabel>
-                            <Select
-                                labelId='planet-destination-select-label'
-                                id='planet-destination-select'
-                                label='Destination'
-                                value={destination}
-                                onChange={handleSelectDestination}
-                            >
-                                {travelStore.planetNames.map((name) => (
-                                    <MenuItem key={name} value={name}>
-                                        {name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        <FormControl fullWidth>
-                            <InputLabel id='planet-destination-travel-point-select-label'>
-                                Destination Travel Point
-                            </InputLabel>
-                            <Select
-                                labelId='planet-destination-travel-point-select-label'
-                                id='planet-destination-travel-point-select'
-                                label='Destination Travel Point'
-                                value={destinationTravelPoint}
-                                onChange={handleSelectDestinationTravelPoint}
-                            >
-                                {travelStore.destinationTravelPoints.map((travelPoint) => (
-                                    <MenuItem key={travelPoint.name} value={travelPoint.name}>
-                                        {travelPoint.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Stack>
+                    <h2>{planetTravelStore.travelPoints}</h2>
                 </Box>
                 <Box
                     sx={{
@@ -176,24 +102,7 @@ const Travel = () => {
                         width: '500px',
                         height: '500px',
                     }}
-                >
-                    {travelStore.travelRoute.map((route, i) => (
-                        <Box
-                            key={i}
-                            mb={2}
-                            sx={{
-                                backgroundColor: 'primary.dark',
-                                textAlign: 'center',
-                                p: 2,
-                            }}
-                        >
-                            <Typography variant='body1'>{route.currentPlanet}</Typography>
-                            <Typography variant='body1'>
-                                {route.currentPlanetTravelPoint}
-                            </Typography>
-                        </Box>
-                    ))}
-                </Box>
+                ></Box>
             </Paper>
         </Box>
     );

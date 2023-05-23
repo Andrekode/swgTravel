@@ -1,5 +1,9 @@
 const News = () => {
-    return <h1>News</h1>;
+    return (
+        <>
+            <h1>News</h1>
+        </>
+    );
 };
 
 export default News;
