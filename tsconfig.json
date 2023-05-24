@@ -27,6 +27,8 @@
       "@components/*": ["./components/*"],
       "@services/*": ["./services/*"],
       "@stores/*": ["./stores/*"],
+      "@utils/*": ["./utils/*"],
+      "@customType/*": ["./customType/*"],
     }
   },
   "include": ["vite.config.ts", "**/*.ts", "**/*.tsx"],

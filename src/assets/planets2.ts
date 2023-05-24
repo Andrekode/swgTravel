@@ -1,4 +1,5 @@
-import { Planet } from '../type/planet.type';
+import { Planet } from '@customType/planet.type';
+
 const planets: Map<string, Planet> = new Map([
     // ... planets map data ...
     [

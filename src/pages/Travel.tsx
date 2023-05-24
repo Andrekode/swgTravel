@@ -1,24 +1,19 @@
-import React, { useState } from 'react';
 import bgtravel from '../assets/bgtravel.jpg';
 import { Paper, Box, Stack, FormControl, InputLabel, MenuItem, Button } from '@mui/material';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { observer } from 'mobx-react';
 import planets from '../assets/planets2';
 import planetTravelStore from '@/stores/planetTravelStore';
+import capitalizeFirstLetter from '@utils/capitalizeFirstLetter';
 
 const Travel = () => {
-    const [startPlanetName, setStartPlanetName] = useState('');
-    const [endPlanetName, setEndStartPlanetName] = useState('');
-
-    const handleStartPlanetChange = (event) => {
+    const handleStartPlanetChange = (event: SelectChangeEvent<string>) => {
         const startPlanetName = event.target.value;
-        setStartPlanetName(startPlanetName);
         planetTravelStore.setStartPlanet(startPlanetName);
     };
 
-    const handleEndPlanetChange = (event) => {
+    const handleEndPlanetChange = (event: SelectChangeEvent<string>) => {
         const endPlanetName = event.target.value;
-        setEndStartPlanetName(endPlanetName);
         planetTravelStore.setEndPlanet(endPlanetName);
     };
 
@@ -57,12 +52,12 @@ const Travel = () => {
                                 labelId='current-location-select-label'
                                 id='current-location-select'
                                 label='Current Location'
-                                value={startPlanetName}
+                                value={planetTravelStore.startPlanet}
                                 onChange={handleStartPlanetChange}
                             >
                                 {[...planets.keys()].map((planet) => (
                                     <MenuItem key={planet} value={planet}>
-                                        {planet}
+                                        {capitalizeFirstLetter(planet)}
                                     </MenuItem>
                                 ))}
                             </Select>
@@ -75,12 +70,12 @@ const Travel = () => {
                                 labelId='end-location-label'
                                 id='end-location-select'
                                 label='End Location'
-                                value={endPlanetName}
+                                value={planetTravelStore.endPlanet}
                                 onChange={handleEndPlanetChange}
                             >
                                 {[...planets.keys()].map((planet) => (
                                     <MenuItem key={planet} value={planet}>
-                                        {planet}
+                                        {capitalizeFirstLetter(planet)}
                                     </MenuItem>
                                 ))}
                             </Select>

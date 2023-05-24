@@ -1,9 +1,5 @@
 import planets from '../assets/planets2';
-
-type Path = {
-    totalDistance: number;
-    travelPoints: string[];
-};
+import { Path } from '@customType/path.type';
 
 class PlanetTravelService {
     dijkstra(startPlanet: string, endPlanet: string): Path {

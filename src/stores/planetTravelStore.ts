@@ -1,12 +1,16 @@
 import planetTravelService from '@services/planetTravelService';
 import { action, observable, makeObservable } from 'mobx';
+import { Path } from '@customType/path.type';
 
 class PlanetTravelStore {
-    startPlanet = 'corellia';
-    endPlanet = 'tatooine';
+    startPlanet = '';
+    endPlanet = '';
     travelPoints = '';
     totalDistance = 0;
-    path = {};
+    path: Path = {
+        totalDistance: 0,
+        travelPoints: [],
+    };
 
     constructor() {
         makeObservable(this, {
@@ -27,7 +31,9 @@ class PlanetTravelStore {
         const shortestPath = planetTravelService.dijkstra(startPlanet, endPlanet);
 
         this.path = shortestPath;
-        this.travelPoints = shortestPath.travelPoints.join(' -> ');
+        this.travelPoints = shortestPath.travelPoints
+            .map((point) => point.charAt(0).toUpperCase() + point.slice(1))
+            .join(' -> ');
         this.totalDistance = shortestPath.totalDistance;
 
         console.log('Shortest path:', this.travelPoints);
