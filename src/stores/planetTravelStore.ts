@@ -15,10 +15,12 @@ class PlanetTravelStore {
             travelPoints: observable,
             totalDistance: observable,
             path: observable,
+            findShortesPath: action,
+            setStartPlanet: action,
+            setEndPlanet: action,
         });
     }
 
-    @action
     findShortesPath = () => {
         const startPlanet = this.startPlanet;
         const endPlanet = this.endPlanet;
@@ -37,12 +39,10 @@ class PlanetTravelStore {
         }
     };
 
-    @action
     setStartPlanet = (startPlanetName: string) => {
         this.startPlanet = startPlanetName;
     };
 
-    @action
     setEndPlanet = (endPlanetName: string) => {
         this.endPlanet = endPlanetName;
     };
