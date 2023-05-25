@@ -12,7 +12,6 @@ const Item = styled(Paper)(({ theme }) => ({
     color: theme.palette.text.secondary,
 }));
 
-
 const RouteCard = (props) => {
     return (
         <Grid container spacing={2}>
