@@ -3,4 +3,8 @@ type Path = {
     travelPoints: string[];
 };
 
+type test = {
+    nada: number;
+}
+
 export type { Path };
